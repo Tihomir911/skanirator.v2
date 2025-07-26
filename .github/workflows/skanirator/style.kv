@@ -1,20 +1,118 @@
-<RootWidget>:
-    orientation: 'vertical'
-    spacing: 10
-    padding: 10
+#:kivy 2.2.1
 
-    CameraPreview:
-        id: cam
-        size_hint_y: 0.8
+<MainScreen>:
+    orientation: 'vertical'
+    spacing: 20
+    padding: 20
+    canvas.before:
+        Color:
+            rgba: 0, 0, 0, 1  # Черный фон
+        Rectangle:
+            pos: self.pos
+            size: self.size
 
     BoxLayout:
+        orientation: 'horizontal'
         size_hint_y: 0.2
         spacing: 10
 
-        Button:
-            text: '🔍 Вставить ссылку вручную'
-            on_press: root.manual_input()
+        Image:
+            source: "logo.png"
+            size_hint_x: 0.3
+            allow_stretch: True
+            keep_ratio: True
+
+        Label:
+            text: "Skanirator"
+            font_size: '28sp'
+            bold: True
+            color: 1, 1, 1, 1
+            halign: 'left'
+            valign: 'middle'
+
+    BoxLayout:
+        size_hint_y: None
+        height: 2
+        canvas.before:
+            Color:
+                rgba: 1, 1, 1, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+    BoxLayout:
+        id: main_menu
+        orientation: 'vertical'
+        spacing: 20
+        padding: 40
+        size_hint_y: None
+        height: self.minimum_height
 
         Button:
-            text: '🛑 Выйти'
-            on_press: app.stop()
+            text: "📷 Отсканируй QR"
+            font_size: 20
+            size_hint_y: None
+            height: 60
+            background_color: 1, 1, 1, 1
+            color: 0, 0, 0, 1
+            on_release: root.show_scanner()
+
+        Button:
+            text: "🔗 Вставь ссылку"
+            font_size: 20
+            size_hint_y: None
+            height: 60
+            background_color: 1, 1, 1, 1
+            color: 0, 0, 0, 1
+            on_release: root.show_link_input()
+
+    BoxLayout:
+        id: scanner_area
+        orientation: 'vertical'
+        opacity: 0
+        size_hint_y: None
+        height: 400
+
+        Label:
+            text: "[белая линия сканера будет тут]"
+            color: 1, 1, 1, 1
+            font_size: 20
+            halign: 'center'
+
+    BoxLayout:
+        id: link_area
+        orientation: 'vertical'
+        opacity: 0
+        spacing: 10
+        size_hint_y: None
+        height: 200
+        padding: 10
+
+        TextInput:
+            id: link_input
+            hint_text: "Вставьте ссылку"
+            multiline: False
+            background_color: 0.2, 0.2, 0.2, 1
+            foreground_color: 1, 1, 1, 1
+            cursor_color: 1, 1, 1, 1
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 1, 1
+                Line:
+                    width: 2
+                    rectangle: self.x, self.y, self.width, self.height
+
+        Button:
+            text: "Проверить ссылку"
+            size_hint_y: None
+            height: 50
+            background_color: 1, 1, 1, 1
+            color: 0, 0, 0, 1
+            on_release: root.analyze_link(link_input.text)
+
+    Label:
+        id: result_label
+        text: ""
+        font_size: 18
+        color: 0, 1, 0, 1  # Зеленый или красный в коде
+        halign: 'center'
