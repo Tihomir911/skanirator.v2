@@ -1,45 +1,130 @@
-<MainLayout>:
+#:import FadeTransition kivy.uix.screenmanager.FadeTransition
+#:import Window kivy.core.window.Window
+
+<MainScreen>:
     orientation: 'vertical'
-    padding: 20
     spacing: 20
+    padding: 20
     canvas.before:
         Color:
-            rgba: 0, 0, 0, 1
+            rgba: 0, 0, 0, 1  # Чёрный фон
         Rectangle:
             pos: self.pos
             size: self.size
 
     BoxLayout:
+        orientation: 'horizontal'
         size_hint_y: None
-        height: "80dp"
+        height: '80dp'
         spacing: 10
-        Image:
-            source: "logo.png"
-            size_hint_x: None
-            width: "80dp"
-        Label:
-            text: "Skanirator"
-            color: 1, 1, 1, 1
-            font_size: "28sp"
 
-    Widget:
+        Image:
+            source: 'logo.png'
+            size_hint_x: None
+            width: '80dp'
+            allow_stretch: True
+            keep_ratio: True
+
+        Label:
+            text: 'Skanirator'
+            font_size: '28sp'
+            color: 1, 1, 1, 1
+            bold: True
+            valign: 'middle'
+
+    BoxLayout:
+        orientation: 'vertical'
         size_hint_y: None
-        height: "2dp"
+        height: '2dp'
         canvas.before:
             Color:
-                rgba: 1, 1, 1, 1
+                rgba: 1, 1, 1, 1  # Белая полоса
             Rectangle:
                 pos: self.pos
                 size: self.size
 
-    Button:
-        text: "📷 Отсканируй QR"
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint: (1, 0.5)
+        spacing: 20
+        padding: [20, 20, 20, 20]
+        id: button_container
+
+        Button:
+            text: '📷 Отсканируй QR'
+            font_size: '20sp'
+            size_hint_y: None
+            height: '60dp'
+            background_color: 1, 1, 1, 1
+            color: 0, 0, 0, 1
+            on_press: app.start_qr_mode()
+
+        Button:
+            text: '🔗 Вставь ссылку'
+            font_size: '20sp'
+            size_hint_y: None
+            height: '60dp'
+            background_color: 1, 1, 1, 1
+            color: 0, 0, 0, 1
+            on_press: app.start_link_mode()
+
+    BoxLayout:
+        orientation: 'vertical'
+        id: content_area
+        size_hint: (1, 1)
+        spacing: 10
+
+<CameraLayout>:
+    orientation: 'vertical'
+    spacing: 10
+
+    BoxLayout:
+        id: camera_area
+        size_hint_y: 0.85
+
+    Label:
+        id: scan_result
+        text: ''
+        font_size: '16sp'
+        size_hint_y: 0.15
+        color: 0, 1, 0, 1
+        markup: True
+
+<LinkInputLayout>:
+    orientation: 'vertical'
+    spacing: 10
+    padding: [10, 10, 10, 10]
+
+    TextInput:
+        id: link_input
+        hint_text: 'Вставьте ссылку'
+        foreground_color: 1, 1, 1, 1
+        background_color: 0.3, 0.3, 0.3, 1
         size_hint_y: None
-        height: "60dp"
-        on_press: app.root.clear_widgets(); app.root.add_widget(CameraPreview())
+        height: '50dp'
+        multiline: False
+        padding: [10, 10]
+        font_size: '18sp'
+        cursor_color: 1, 1, 1, 1
+        canvas.before:
+            Color:
+                rgba: 1, 1, 1, 1  # Белая рамка
+            Line:
+                width: 1.5
+                rectangle: (self.x, self.y, self.width, self.height)
 
     Button:
-        text: "🔗 Вставить ссылку"
+        text: '🚀 Проверить ссылку'
         size_hint_y: None
-        height: "60dp"
-        on_press: root.manual_input()
+        height: '50dp'
+        font_size: '18sp'
+        background_color: 1, 1, 1, 1
+        color: 0, 0, 0, 1
+        on_press: app.check_link(link_input.text)
+
+    Label:
+        id: link_result
+        text: ''
+        font_size: '16sp'
+        color: 0, 1, 0, 1
+        markup: True
