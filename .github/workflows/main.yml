@@ -26,7 +26,8 @@ jobs:
             python3-pip python3-setuptools python3-wheel python3-dev \
             git curl libtool automake cmake pkg-config \
             zlib1g-dev libc6-dev libncurses5-dev libstdc++6 \
-            libffi-dev libssl-dev libsqlite3-dev
+            libffi-dev libssl-dev libsqlite3-dev \
+            android-sdk adb
 
       - name: 📦 Install Cython and Buildozer
         run: |
@@ -34,15 +35,21 @@ jobs:
           pip install cython
           pip install buildozer
 
-      - name: 📁 Initialize buildozer.spec if not present
+      - name: 🔧 Set ANDROID SDK paths manually (to fix AIDL)
         run: |
-          if [ ! -f buildozer.spec ]; then
-            buildozer init
-          fi
+          mkdir -p ~/.buildozer/android/platform/android-sdk
+          yes | sdkmanager --licenses || true
+        env:
+          ANDROID_SDK_ROOT: ~/.buildozer/android/platform/android-sdk
+          ANDROID_HOME: ~/.buildozer/android/platform/android-sdk
+          PATH: $PATH:~/.buildozer/android/platform/android-sdk/tools/bin
 
       - name: 🛠️ Build APK (Debug)
         run: |
           buildozer android debug
+        env:
+          ANDROID_SDK_ROOT: ~/.buildozer/android/platform/android-sdk
+          ANDROID_HOME: ~/.buildozer/android/platform/android-sdk
 
       - name: ☁️ Upload APK Artifact
         uses: actions/upload-artifact@v4
