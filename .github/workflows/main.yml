@@ -1,4 +1,4 @@
-name: Build APK
+name: Build APK with Buildozer
 
 on:
   push:
@@ -10,35 +10,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: ✅ Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: ⚙️ Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Install system dependencies
+      - name: 🧰 Install system dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
+          sudo apt update
+          sudo apt install -y \
             build-essential zip unzip openjdk-17-jdk \
-            python3-pip python3-setuptools python3-wheel \
-            git libffi-dev libssl-dev \
-            libsqlite3-dev zlib1g-dev libncurses5 libgl1-mesa-dev \
-            libfreetype6-dev libjpeg-dev pkg-config
+            python3-pip python3-setuptools python3-wheel python3-dev \
+            git curl libtool automake cmake pkg-config \
+            zlib1g-dev libc6-dev libncurses5-dev libstdc++6 \
+            libffi-dev libssl-dev libsqlite3-dev
 
-      - name: Install Buildozer
+      - name: 📦 Install Cython and Buildozer
         run: |
           python3 -m pip install --upgrade pip
-          pip install Cython
+          pip install cython
           pip install buildozer
 
-      - name: Build APK
+      - name: 📁 Initialize buildozer.spec if not present
+        run: |
+          if [ ! -f buildozer.spec ]; then
+            buildozer init
+          fi
+
+      - name: 🛠️ Build APK (Debug)
         run: |
           buildozer android debug
 
-      - name: Upload APK
+      - name: ☁️ Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: skanirator-apk
