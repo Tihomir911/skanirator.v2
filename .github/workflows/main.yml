@@ -7,7 +7,6 @@ on:
 
 jobs:
   build:
-    name: Build APK
     runs-on: ubuntu-latest
 
     steps:
@@ -19,43 +18,20 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install system dependencies
         run: |
-          sudo apt update
-          sudo apt install -y \
-            build-essential \
-            git \
-            zip \
-            unzip \
-            openjdk-17-jdk \
-            python3-pip \
-            python3-setuptools \
-            libncurses5 \
-            libffi-dev \
-            libssl-dev \
-            libsqlite3-dev \
-            zlib1g-dev \
-            libjpeg-dev \
-            libfreetype6-dev \
-            libgl1-mesa-dev \
-            libgles2-mesa-dev \
-            libavcodec-dev \
-            libavformat-dev \
-            libswscale-dev \
-            libffi-dev \
-            libpng-dev \
-            pkg-config \
-            autoconf \
-            libtool \
-            python3-virtualenv \
-            cmake \
-            libltdl-dev
-
-          pip install --upgrade pip
-          pip install Cython virtualenv
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential zip unzip openjdk-17-jdk \
+            python3-pip python3-setuptools python3-wheel \
+            git libffi-dev libssl-dev \
+            libsqlite3-dev zlib1g-dev libncurses5 libgl1-mesa-dev \
+            libfreetype6-dev libjpeg-dev pkg-config
 
       - name: Install Buildozer
         run: |
+          python3 -m pip install --upgrade pip
+          pip install Cython
           pip install buildozer
 
       - name: Build APK
