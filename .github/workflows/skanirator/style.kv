@@ -1,19 +1,20 @@
-<MainLayout>:
-    orientation: "vertical"
-    padding: 20
-    spacing: 20
+<RootWidget>:
+    orientation: 'vertical'
+    spacing: 10
+    padding: 10
 
-    Label:
-        text: "📱 Skanirator"
-        font_size: '32sp'
-        halign: "center"
+    CameraPreview:
+        id: cam
+        size_hint_y: 0.8
 
-    Button:
-        text: "🔍 Сканировать QR"
-        size_hint_y: None
-        height: "48dp"
+    BoxLayout:
+        size_hint_y: 0.2
+        spacing: 10
 
-    Button:
-        text: "🌐 Вставить ссылку"
-        size_hint_y: None
-        height: "48dp"
+        Button:
+            text: '🔍 Вставить ссылку вручную'
+            on_press: root.manual_input()
+
+        Button:
+            text: '🛑 Выйти'
+            on_press: app.stop()
