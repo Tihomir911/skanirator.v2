@@ -7,29 +7,53 @@ on:
 
 jobs:
   build:
-    name: Build APK
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+    steps:
+      - name: ✅ Checkout repo
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
+      - name: 🧰 Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y build-essential git zip unzip openjdk-17-jdk python3-pip ffmpeg libgl1-mesa-dev libgles2-mesa-dev libncurses5 libstdc++6 libffi-dev libssl-dev
-          pip install --upgrade pip
-          pip install buildozer cython
+          sudo apt install -y \
+            build-essential \
+            git zip unzip openjdk-17-jdk \
+            python3-pip python3-setuptools python3-wheel \
+            libffi-dev libssl-dev \
+            libsqlite3-dev zlib1g-dev \
+            curl
 
-      - name: Build APK
+      - name: 📦 Install Buildozer
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install Cython==0.29.36
+          pip install buildozer
+
+      - name: 🛠️ Install Android SDK + AIDL
+        run: |
+          mkdir -p "$HOME/.buildozer/android/platform"
+          curl -o sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
+          unzip sdk-tools.zip -d "$HOME/.buildozer/android/platform/cmdline-tools"
+          mv "$HOME/.buildozer/android/platform/cmdline-tools/cmdline-tools" "$HOME/.buildozer/android/platform/cmdline-tools/latest"
+          yes | "$HOME/.buildozer/android/platform/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$HOME/.buildozer/android/platform/android-sdk" --licenses
+          "$HOME/.buildozer/android/platform/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$HOME/.buildozer/android/platform/android-sdk" \
+            "platform-tools" "platforms;android-31" "build-tools;31.0.0"
+
+      - name: 🚀 Build APK
         run: |
           buildozer android debug
+        env:
+          ANDROIDSDK: $HOME/.buildozer/android/platform/android-sdk
+          ANDROID_HOME: $HOME/.buildozer/android/platform/android-sdk
+          PATH: $PATH:$HOME/.buildozer/android/platform/android-sdk/platform-tools
 
-      - name: Upload artifact
+      - name: ☁️ Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: skanirator-apk
