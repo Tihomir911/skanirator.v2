@@ -58,3 +58,4 @@ jobs:
         with:
           name: skanirator-apk
           path: bin/*.apk
+
