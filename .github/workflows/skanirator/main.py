@@ -15,28 +15,8 @@ from kivy.uix.widget import Widget
 from kivy.graphics import Color, Rectangle, Line
 from threading import Thread
 
-KV = '''
-<RootWidget>:
-    orientation: 'vertical'
-    spacing: 10
-    padding: 10
+Builder.load_file("style.kv")
 
-    CameraPreview:
-        id: cam
-        size_hint_y: 0.8
-
-    BoxLayout:
-        size_hint_y: 0.2
-        spacing: 10
-
-        Button:
-            text: '🔍 Вставить ссылку вручную'
-            on_press: root.manual_input()
-
-        Button:
-            text: '🛑 Выйти'
-            on_press: app.stop()
-'''
 
 class CameraPreview(BoxLayout):
     def __init__(self, **kwargs):
@@ -102,13 +82,13 @@ class CameraPreview(BoxLayout):
         Color(0, 1, 0, 0.8)
         Line(points=[fx1, y_line, fx2, y_line], width=2)
 
-        # Темная маска вокруг рамки
         Color(0, 0, 0, 0.5)
         Line(rectangle=(x, y, w, h), width=0)
         Rectangle(pos=(x, y), size=(w, fy1 - y))
         Rectangle(pos=(x, fy2), size=(w, y + h - fy2))
         Rectangle(pos=(x, fy1), size=(fx1 - x, fy2 - fy1))
         Rectangle(pos=(fx2, fy1), size=(x + w - fx2, fy2 - fy1))
+
 
 class RootWidget(BoxLayout):
     def manual_input(self):
@@ -130,10 +110,11 @@ class RootWidget(BoxLayout):
         check_button.bind(on_press=on_check)
         popup.open()
 
+
 class QRScannerApp(App):
     def build(self):
         self.analyzed_links = set()
-        return Builder.load_string(KV)
+        return RootWidget()
 
     def analyze_link(self, url):
         if url in self.analyzed_links:
@@ -164,5 +145,6 @@ class QRScannerApp(App):
         )
         popup.open()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     QRScannerApp().run()
