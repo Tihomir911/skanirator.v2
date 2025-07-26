@@ -1,4 +1,4 @@
-name: Build APK with Buildozer
+name: Build APK
 
 on:
   push:
@@ -7,27 +7,55 @@ on:
 
 jobs:
   build:
+    name: Build APK
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: '3.10'
 
-      - name: Install system dependencies
+      - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y zip unzip openjdk-17-jdk python3-pip python3-setuptools python3-wheel python3-dev git curl build-essential libtool \
-            automake cmake pkg-config zlib1g-dev libc6-dev libncurses5-dev libstdc++6 libffi-dev libssl-dev libsqlite3-dev
+          sudo apt install -y \
+            build-essential \
+            git \
+            zip \
+            unzip \
+            openjdk-17-jdk \
+            python3-pip \
+            python3-setuptools \
+            libncurses5 \
+            libffi-dev \
+            libssl-dev \
+            libsqlite3-dev \
+            zlib1g-dev \
+            libjpeg-dev \
+            libfreetype6-dev \
+            libgl1-mesa-dev \
+            libgles2-mesa-dev \
+            libavcodec-dev \
+            libavformat-dev \
+            libswscale-dev \
+            libffi-dev \
+            libpng-dev \
+            pkg-config \
+            autoconf \
+            libtool \
+            python3-virtualenv \
+            cmake \
+            libltdl-dev
+
+          pip install --upgrade pip
+          pip install Cython virtualenv
 
       - name: Install Buildozer
         run: |
-          python3 -m pip install --upgrade pip
-          pip install cython
           pip install buildozer
 
       - name: Build APK
@@ -39,3 +67,4 @@ jobs:
         with:
           name: skanirator-apk
           path: bin/*.apk
+
