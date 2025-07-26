@@ -1,4 +1,5 @@
-#:kivy 2.2.1
+#:import FadeTransition kivy.uix.screenmanager.FadeTransition
+#:import Window kivy.core.window.Window
 
 <MainScreen>:
     orientation: 'vertical'
@@ -6,113 +7,125 @@
     padding: 20
     canvas.before:
         Color:
-            rgba: 0, 0, 0, 1  # Черный фон
+            rgba: 0, 0, 0, 1  # Чёрный фон
         Rectangle:
             pos: self.pos
             size: self.size
 
     BoxLayout:
         orientation: 'horizontal'
-        size_hint_y: 0.2
+        size_hint_y: None
+        height: '80dp'
         spacing: 10
 
         Image:
-            source: "logo.png"
-            size_hint_x: 0.3
+            source: 'logo.png'
+            size_hint_x: None
+            width: '80dp'
             allow_stretch: True
             keep_ratio: True
 
         Label:
-            text: "Skanirator"
+            text: 'Skanirator'
             font_size: '28sp'
-            bold: True
             color: 1, 1, 1, 1
-            halign: 'left'
+            bold: True
             valign: 'middle'
 
     BoxLayout:
+        orientation: 'vertical'
         size_hint_y: None
-        height: 2
+        height: '2dp'
         canvas.before:
             Color:
-                rgba: 1, 1, 1, 1
+                rgba: 1, 1, 1, 1  # Белая полоса
             Rectangle:
                 pos: self.pos
                 size: self.size
 
     BoxLayout:
-        id: main_menu
         orientation: 'vertical'
+        size_hint: (1, 0.5)
         spacing: 20
-        padding: 40
-        size_hint_y: None
-        height: self.minimum_height
+        padding: [20, 20, 20, 20]
+        id: button_container
 
         Button:
-            text: "📷 Отсканируй QR"
-            font_size: 20
+            text: '📷 Отсканируй QR'
+            font_size: '20sp'
             size_hint_y: None
-            height: 60
+            height: '60dp'
             background_color: 1, 1, 1, 1
             color: 0, 0, 0, 1
-            on_release: root.show_scanner()
+            on_press: app.start_qr_mode()
 
         Button:
-            text: "🔗 Вставь ссылку"
-            font_size: 20
+            text: '🔗 Вставь ссылку'
+            font_size: '20sp'
             size_hint_y: None
-            height: 60
+            height: '60dp'
             background_color: 1, 1, 1, 1
             color: 0, 0, 0, 1
-            on_release: root.show_link_input()
+            on_press: app.start_link_mode()
 
     BoxLayout:
-        id: scanner_area
         orientation: 'vertical'
-        opacity: 0
-        size_hint_y: None
-        height: 400
-
-        Label:
-            text: "[белая линия сканера будет тут]"
-            color: 1, 1, 1, 1
-            font_size: 20
-            halign: 'center'
-
-    BoxLayout:
-        id: link_area
-        orientation: 'vertical'
-        opacity: 0
+        id: content_area
+        size_hint: (1, 1)
         spacing: 10
-        size_hint_y: None
-        height: 200
-        padding: 10
 
-        TextInput:
-            id: link_input
-            hint_text: "Вставьте ссылку"
-            multiline: False
-            background_color: 0.2, 0.2, 0.2, 1
-            foreground_color: 1, 1, 1, 1
-            cursor_color: 1, 1, 1, 1
-            canvas.before:
-                Color:
-                    rgba: 1, 1, 1, 1
-                Line:
-                    width: 2
-                    rectangle: self.x, self.y, self.width, self.height
+<CameraLayout>:
+    orientation: 'vertical'
+    spacing: 10
 
-        Button:
-            text: "Проверить ссылку"
-            size_hint_y: None
-            height: 50
-            background_color: 1, 1, 1, 1
-            color: 0, 0, 0, 1
-            on_release: root.analyze_link(link_input.text)
+    BoxLayout:
+        id: camera_area
+        size_hint_y: 0.85
 
     Label:
-        id: result_label
-        text: ""
-        font_size: 18
-        color: 0, 1, 0, 1  # Зеленый или красный в коде
-        halign: 'center'
+        id: scan_result
+        text: ''
+        font_size: '16sp'
+        size_hint_y: 0.15
+        color: 0, 1, 0, 1
+        markup: True
+
+<LinkInputLayout>:
+    orientation: 'vertical'
+    spacing: 10
+    padding: [10, 10, 10, 10]
+
+    TextInput:
+        id: link_input
+        hint_text: 'Вставьте ссылку'
+        foreground_color: 1, 1, 1, 1
+        background_color: 0.3, 0.3, 0.3, 1
+        size_hint_y: None
+        height: '50dp'
+        multiline: False
+        padding: [10, 10]
+        font_size: '18sp'
+        cursor_color: 1, 1, 1, 1
+        canvas.before:
+            Color:
+                rgba: 1, 1, 1, 1  # Белая рамка
+            Line:
+                width: 1.5
+                rectangle: (self.x, self.y, self.width, self.height)
+
+    Button:
+        text: '🚀 Проверить ссылку'
+        size_hint_y: None
+        height: '50dp'
+        font_size: '18sp'
+        background_color: 1, 1, 1, 1
+        color: 0, 0, 0, 1
+        on_press: app.check_link(link_input.text)
+
+    Label:
+        id: link_result
+        text: ''
+        font_size: '16sp'
+        color: 0, 1, 0, 1
+        markup: True
+
