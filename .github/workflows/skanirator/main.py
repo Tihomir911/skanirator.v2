@@ -1,70 +1,89 @@
+# === main.py ===
 import re
+import cv2
 import requests
+from threading import Thread
+from pyzbar import pyzbar
 from kivy.app import App
+from kivy.clock import Clock
+from kivy.graphics.texture import Texture
 from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
-from kivy.animation import Animation
-from kivy.clock import Clock
-from threading import Thread
+from kivy.uix.popup import Popup
+from kivy.uix.label import Label
+from kivy.uix.button import Button
+from kivy.uix.textinput import TextInput
+from kivy.uix.image import Image
 
 Builder.load_file("style.kv")
 
+class CameraWidget(Image):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.capture = cv2.VideoCapture(0)
+        self.scanner_line_y = 0
+        Clock.schedule_interval(self.update, 1.0 / 30)
 
-class MainScreen(BoxLayout):
-    def show_scanner(self):
-        self.ids.main_menu.opacity = 0
-        self.ids.link_area.opacity = 0
-        self.ids.scanner_area.opacity = 1
-        self.ids.result_label.text = ""
-        self.ids.result_label.color = (1, 1, 1, 1)
+    def update(self, dt):
+        ret, frame = self.capture.read()
+        if not ret:
+            return
 
-        # Имитируем анимацию сканера
-        anim = Animation(opacity=0, duration=0.5) + Animation(opacity=1, duration=0.5)
-        anim.repeat = True
-        anim.start(self.ids.scanner_area)
+        decoded = pyzbar.decode(frame)
+        for obj in decoded:
+            url = obj.data.decode('utf-8')
+            App.get_running_app().analyze_link(url)
 
-        # Запуск фейковой проверки через 3 сек
-        Clock.schedule_once(lambda dt: self.analyze_qr("https://example.com"), 3)
+        frame = cv2.flip(frame, 0)
+        buf = frame.tobytes()
+        texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
+        texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
+        self.texture = texture
 
-    def show_link_input(self):
-        self.ids.main_menu.opacity = 0
-        self.ids.scanner_area.opacity = 0
-        self.ids.link_area.opacity = 1
-        self.ids.result_label.text = ""
+class MainLayout(BoxLayout):
+    def show_scan(self):
+        self.ids.menu_box.opacity = 0
+        self.ids.camera_box.opacity = 1
 
-    def analyze_link(self, url):
-        self.ids.result_label.text = "Проверка..."
-        self.ids.result_label.color = (1, 1, 1, 1)
+    def show_input(self):
+        self.ids.menu_box.opacity = 0
+        self.ids.input_box.opacity = 1
 
-        def check():
-            if not re.match(r'^https?://', url):
-                self.show_result("❌ Неверный формат ссылки", is_danger=True)
-                return
-
-            try:
-                response = requests.get(url, timeout=5)
-                if any(word in response.text.lower() for word in ['malware', 'attack', 'phishing', 'virus']):
-                    self.show_result("🚫 В ссылке была найдена угрожающая тебе активность: вирус или фишинг", is_danger=True)
-                else:
-                    self.show_result("✅ Ссылка чиста, можешь переходить!", is_danger=False)
-            except Exception:
-                self.show_result("❌ Не удалось проверить ссылку", is_danger=True)
-
-        Thread(target=check).start()
-
-    def analyze_qr(self, url):
-        self.analyze_link(url)
-
-    def show_result(self, msg, is_danger=False):
-        self.ids.result_label.text = msg
-        self.ids.result_label.color = (1, 0, 0, 1) if is_danger else (0, 1, 0, 1)
-
+    def send_url(self):
+        url = self.ids.url_input.text.strip()
+        if url:
+            App.get_running_app().analyze_link(url)
 
 class SkaniratorApp(App):
     def build(self):
-        return MainScreen()
+        self.analyzed_links = set()
+        return MainLayout()
 
+    def analyze_link(self, url):
+        if url in self.analyzed_links:
+            return
+        self.analyzed_links.add(url)
+
+        def analyze():
+            if not re.match(r'^https?://', url):
+                self.show_result("❌ Неверный формат ссылки!")
+                return
+            try:
+                r = requests.get(url, timeout=5)
+                if any(w in r.text.lower() for w in ["malware", "phishing", "attack", "virus"]):
+                    self.show_result(f"[color=#FF0000]⚠️ В ссылке найдена угроза![/color]\n{url}")
+                else:
+                    self.show_result(f"[color=#00FF00]✅ Ссылка безопасна:[/color]\n{url}")
+            except Exception:
+                self.show_result("🚫 Не удалось проверить ссылку")
+
+        Thread(target=analyze).start()
+
+    def show_result(self, message):
+        popup = Popup(title="Результат", content=Label(text=message, markup=True), size_hint=(0.8, 0.4))
+        popup.open()
 
 if __name__ == "__main__":
     SkaniratorApp().run()
+
 
