@@ -1,0 +1,69 @@
+name: Build APK
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            build-essential \
+            git \
+            zip \
+            unzip \
+            openjdk-17-jdk \
+            python3-pip \
+            python3-setuptools \
+            libncurses5 \
+            libffi-dev \
+            libssl-dev \
+            libsqlite3-dev \
+            zlib1g-dev \
+            libjpeg-dev \
+            libfreetype6-dev \
+            libgl1-mesa-dev \
+            libgles2-mesa-dev \
+            libavcodec-dev \
+            libavformat-dev \
+            libswscale-dev \
+            libffi-dev \
+            libpng-dev \
+            pkg-config \
+            autoconf \
+            libtool \
+            python3-virtualenv \
+            cmake \
+            libltdl-dev
+
+          pip install --upgrade pip
+          pip install Cython virtualenv
+
+      - name: Install Buildozer
+        run: |
+          pip install buildozer
+
+      - name: Build APK
+        run: |
+          buildozer android debug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: skanirator-apk
+          path: bin/*.apk
