@@ -1,52 +1,62 @@
 [app]
+
 title = Skanirator
 package.name = skanirator
-package.domain = org.skanirator.app
+package.domain = org.skanirator
 source.dir = .
-source.include_exts = py,kv,png,jpg,ttf,xml
+source.include_exts = py,kv,png,jpg,atlas
 version = 1.0
-requirements = python3,kivy,pyzbar,opencv-python,requests
-orientation = portrait
-fullscreen = 1
 icon.filename = logo.png
+orientation = portrait
 
-# Entry point of the application
+# (str) Supported orientation (one of landscape, sensorLandscape, portrait or all)
+fullscreen = 1
+
+# (list) Permissions
+android.permissions = INTERNET, CAMERA
+
+# (str) Presplash background color (for new android toolchain)
+presplash.color = #000000
+
+# (str) Application theme
+android.theme = '@android:style/Theme.Black.NoTitleBar'
+
+# (bool) Indicate if the application should be fullscreen or not
+fullscreen = 1
+
+# (str) Supported orientation
+orientation = portrait
+
+# (str) Entry point
 entrypoint = main.py
 
-# Android Permissions
-android.permissions = CAMERA, INTERNET
+# (list) Application requirements
+requirements = python3,kivy,pyzbar,opencv-python,requests
 
-# Include .kv and resource files
-android.resource_files = style.kv, logo.png
+# (str) Android NDK version to use
+android.ndk = 25b
 
-# Exclude unnecessary files
-exclude_patterns = *.md, *.zip, *.tar.gz
+# (str) Android SDK API to use
+android.api = 31
 
-# Presplash and background (optional)
-# presplash.filename = splash.png
-# android.presplash_color = #000000
+# (str) Android minimum API your APK will support
+android.minapi = 21
 
-# Supported Android architectures
+# (bool) Indicate if the application should be a service
+android.service = False
+
+# (str) Android entry point, default is ok
+#android.entrypoint = org.kivy.android.PythonActivity
+
+# (str) Supported architectures
 android.archs = arm64-v8a, armeabi-v7a
 
-# Target Android API version
-android.api = 33
-android.minapi = 21
-android.ndk = 25b
-android.gradle_dependencies = com.android.support:appcompat-v7:28.0.0
+# (bool) Copy library instead of making a libpymodules.so
+copy_libs = 1
 
-# Enable logcat for debugging
-log_level = 2
+# (str) Custom source folders for requirements
+# (Separate multiple paths with commas)
+#requirements.source =
 
-# Hide title bar
-android.hide_title = 1
-
-# Include additional .so or .a files
-# android.add_libs_armeabi = libs/armeabi/*.so
-# android.add_libs_arm64_v8a = libs/arm64-v8a/*.so
-
-[buildozer]
-log_level = 2
-warn_on_root = 1
-android.debug = 1
-
+# (bool) Create a single APK or a bundle
+android.packaging = apk
