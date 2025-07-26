@@ -1,0 +1,21 @@
+[app]
+title = Skanirator
+package.name = skanirator
+package.domain = org.skanirator
+source.dir = .
+source.include_exts = py,kv,png,jpg,atlas
+version = 1.0
+icon.filename = logo.png
+orientation = portrait
+fullscreen = 1
+android.permissions = INTERNET, CAMERA
+presplash.color = #000000
+android.theme = '@android:style/Theme.Black.NoTitleBar'
+entrypoint = main.py
+requirements = python3,kivy,pyzbar,opencv-python,requests
+android.ndk = 25b
+android.api = 31
+android.minapi = 21
+android.service = False
+copy_libs = 1
+android.packaging = apk
