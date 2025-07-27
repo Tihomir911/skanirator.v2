@@ -1,7 +1,7 @@
 <MainLayout>:
     orientation: 'vertical'
     padding: 20
-    spacing: 20
+    spacing: 10
     canvas.before:
         Color:
             rgba: 0, 0, 0, 1
@@ -10,36 +10,66 @@
             size: self.size
 
     BoxLayout:
+        orientation: 'horizontal'
         size_hint_y: None
-        height: "80dp"
+        height: 100
         spacing: 10
         Image:
-            source: "logo.png"
+            source: 'logo.png'
             size_hint_x: None
-            width: "80dp"
+            width: 100
         Label:
-            text: "Skanirator"
+            text: '[b]Skanirator[/b]'
+            markup: True
+            font_size: 32
             color: 1, 1, 1, 1
-            font_size: "28sp"
 
     Widget:
         size_hint_y: None
-        height: "2dp"
-        canvas.before:
+        height: 2
+        canvas:
             Color:
                 rgba: 1, 1, 1, 1
             Rectangle:
-                pos: self.pos
                 size: self.size
+                pos: self.pos
 
-    Button:
-        text: "📷 Отсканируй QR"
+    BoxLayout:
+        id: menu_box
+        orientation: 'vertical'
+        spacing: 20
         size_hint_y: None
-        height: "60dp"
-        on_press: app.root.clear_widgets(); app.root.add_widget(CameraPreview())
+        height: 200
+        Button:
+            text: '📷 Отсканируй QR'
+            font_size: 24
+            on_press: root.show_camera()
+        Button:
+            text: '🔗 Вставь ссылку'
+            font_size: 24
+            on_press: root.show_manual_input()
 
-    Button:
-        text: "🔗 Вставить ссылку"
-        size_hint_y: None
-        height: "60dp"
-        on_press: root.manual_input()
+    BoxLayout:
+        id: camera_box
+        orientation: 'vertical'
+        opacity: 0
+        CameraPreview:
+            size_hint_y: 0.9
+
+    BoxLayout:
+        id: link_input_box
+        orientation: 'vertical'
+        spacing: 10
+        opacity: 0
+        TextInput:
+            id: link_input
+            hint_text: 'Вставьте ссылку'
+            background_color: .3, .3, .3, 1
+            foreground_color: 1, 1, 1, 1
+            cursor_color: 1, 1, 1, 1
+            multiline: False
+        Button:
+            text: 'Проверить'
+            size_hint_y: None
+            height: 50
+            on_press: root.check_link()
