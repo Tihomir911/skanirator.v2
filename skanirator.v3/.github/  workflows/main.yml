@@ -4,38 +4,52 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:  # позволяет вручную запускать билд
 
 jobs:
   build:
-    name: Build APK
+    name: Build Android APK with Buildozer
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: 🧾 Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: "3.10"
 
-      - name: Install dependencies
+      - name: 📦 Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y zip unzip openjdk-11-jdk adb git python3-pip \
-            python3-setuptools python3-wheel libzbar-dev libjpeg-dev \
-            python3-opencv ffmpeg autoconf automake build-essential libtool \
-            pkg-config zlib1g-dev libncurses5 libffi-dev libssl-dev
-          pip install --upgrade pip
-          pip install buildozer
+          sudo apt install -y \
+            python3-pip build-essential git zip unzip openjdk-17-jdk \
+            libncurses5 libstdc++6 libffi-dev libssl-dev \
+            libsqlite3-dev zlib1g-dev
 
-      - name: Build APK
+          pip install --upgrade pip setuptools wheel
+          pip install --user buildozer Cython
+
+      - name: 🏗️ Initialize Buildozer
         run: |
-          cd $GITHUB_WORKSPACE
+          export PATH=$PATH:$HOME/.local/bin
+          buildozer init || true
+
+      - name: 🔍 Check buildozer.spec exists
+        run: |
+          if [ ! -f "buildozer.spec" ]; then
+            echo "❌ buildozer.spec not found"
+            exit 1
+          fi
+
+      - name: 🛠️ Build APK
+        run: |
+          export PATH=$PATH:$HOME/.local/bin
           buildozer android debug
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v3
+      - name: 📤 Upload APK
+        uses: actions/upload-artifact@v4
         with:
           name: skanirator-apk
           path: bin/*.apk
-
