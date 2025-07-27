@@ -1,0 +1,45 @@
+<MainLayout>:
+    orientation: 'vertical'
+    padding: 20
+    spacing: 20
+    canvas.before:
+        Color:
+            rgba: 0, 0, 0, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        size_hint_y: None
+        height: "80dp"
+        spacing: 10
+        Image:
+            source: "logo.png"
+            size_hint_x: None
+            width: "80dp"
+        Label:
+            text: "Skanirator"
+            color: 1, 1, 1, 1
+            font_size: "28sp"
+
+    Widget:
+        size_hint_y: None
+        height: "2dp"
+        canvas.before:
+            Color:
+                rgba: 1, 1, 1, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+    Button:
+        text: "📷 Отсканируй QR"
+        size_hint_y: None
+        height: "60dp"
+        on_press: app.root.clear_widgets(); app.root.add_widget(CameraPreview())
+
+    Button:
+        text: "🔗 Вставить ссылку"
+        size_hint_y: None
+        height: "60dp"
+        on_press: root.manual_input()
