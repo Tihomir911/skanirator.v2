@@ -1,55 +1,39 @@
-name: Build APK
+name: Android APK Build
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:  # позволяет вручную запускать билд
+  workflow_dispatch:
 
 jobs:
   build:
-    name: Build Android APK with Buildozer
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🧾 Checkout repository
-        uses: actions/checkout@v4
+    - name: 📥 Checkout repo
+      uses: actions/checkout@v3
 
-      - name: 🐍 Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
+    - name: 🛠️ Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y git zip unzip openjdk-17-jdk python3-pip build-essential \
+          libssl-dev libffi-dev libsqlite3-dev zlib1g-dev libncurses5-dev libncursesw5-dev \
+          libreadline-dev libtk8.6 libgdbm-dev libbz2-dev liblzma-dev libjpeg-dev libfreetype6-dev
 
-      - name: 📦 Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y \
-            python3-pip build-essential git zip unzip openjdk-17-jdk \
-            libncurses5 libstdc++6 libffi-dev libssl-dev \
-            libsqlite3-dev zlib1g-dev
+    - name: 🐍 Install Python dependencies
+      run: |
+        pip install --upgrade pip setuptools Cython virtualenv
+        pip install --user buildozer
 
-          pip install --upgrade pip setuptools wheel
-          pip install --user buildozer Cython
+    - name: ⚙️ Build APK
+      run: |
+        export PATH=$PATH:$HOME/.local/bin
+        buildozer android debug
 
-      - name: 🏗️ Initialize Buildozer
-        run: |
-          export PATH=$PATH:$HOME/.local/bin
-          buildozer init || true
+    - name: 📦 Upload APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: skanirator.apk
+        path: bin/*.apk
 
-      - name: 🔍 Check buildozer.spec exists
-        run: |
-          if [ ! -f "buildozer.spec" ]; then
-            echo "❌ buildozer.spec not found"
-            exit 1
-          fi
-
-      - name: 🛠️ Build APK
-        run: |
-          export PATH=$PATH:$HOME/.local/bin
-          buildozer android debug
-
-      - name: 📤 Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: skanirator-apk
-          path: bin/*.apk
