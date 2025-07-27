@@ -26,9 +26,10 @@ jobs:
         pip install --upgrade pip setuptools Cython virtualenv
         pip install --user buildozer
 
-    - name: ⚙️ Build APK
+    - name: ⚙️ Build APK in project root
       run: |
         export PATH=$PATH:$HOME/.local/bin
+        cd $GITHUB_WORKSPACE  # <- Явный переход в корень, где buildozer.spec
         buildozer android debug
 
     - name: 📦 Upload APK
